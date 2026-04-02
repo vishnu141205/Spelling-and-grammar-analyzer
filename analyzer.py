@@ -97,6 +97,20 @@ COMMON_ALWAYS_VALID = {
 PRONOUN_SUBJECTS = {"i", "you", "we", "they", "he", "she", "it"}
 
 CONTEXTUAL_SPELLING_RULES = {
+    "ia": {
+        "suggestion": "is",
+        "previous_words": {"there"},
+        "next_words": {"a", "an", "the"},
+        "rule": "Contextual spelling",
+        "message": "Did you mean 'is' instead of 'ia' after 'there'?",
+    },
+    "isa": {
+        "suggestion": "is",
+        "previous_words": {"there"},
+        "next_words": {"a", "an", "the"},
+        "rule": "Contextual spelling",
+        "message": "Did you mean 'is' instead of 'isa' after 'there'?",
+    },
     "bout": {
         "suggestion": "bought",
         "previous_words": PRONOUN_SUBJECTS,
