@@ -129,6 +129,13 @@ button,
   color: var(--muted);
 }
 
+.selected-file {
+  margin: 0.65rem 0 0;
+  font-family: "Space Mono", monospace;
+  font-size: 0.82rem;
+  color: #075946;
+}
+
 .results {
   display: grid;
   gap: 1rem;

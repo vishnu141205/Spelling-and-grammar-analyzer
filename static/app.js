@@ -4,6 +4,7 @@ const analyzeTextBtn = document.getElementById("analyzeTextBtn");
 const analyzeFileBtn = document.getElementById("analyzeFileBtn");
 const resultSection = document.getElementById("resultSection");
 const statusEl = document.getElementById("status");
+const selectedFileEl = document.getElementById("selectedFile");
 
 const summaryGrid = document.getElementById("summaryGrid");
 const misspellingsBody = document.getElementById("misspellingsBody");
@@ -23,6 +24,19 @@ const SUMMARY_LABELS = {
 function updateStatus(message, isError = false) {
   statusEl.textContent = message;
   statusEl.style.color = isError ? "#b42318" : "#607060";
+}
+
+function updateSelectedFileLabel(file) {
+  if (!selectedFileEl) {
+    return;
+  }
+
+  if (!file) {
+    selectedFileEl.textContent = "No file selected for parsing.";
+    return;
+  }
+
+  selectedFileEl.textContent = `Selected file: ${file.name}`;
 }
 
 function renderSummary(summary) {
@@ -105,6 +119,10 @@ async function handleResponse(response) {
   return data;
 }
 
+fileInput.addEventListener("change", () => {
+  updateSelectedFileLabel(fileInput.files?.[0]);
+});
+
 analyzeTextBtn.addEventListener("click", async () => {
   const text = textInput.value.trim();
   if (!text) {
@@ -131,6 +149,7 @@ analyzeTextBtn.addEventListener("click", async () => {
 analyzeFileBtn.addEventListener("click", async () => {
   const selected = fileInput.files?.[0];
   if (!selected) {
+    updateSelectedFileLabel(null);
     updateStatus("Select a .txt or .md file first.", true);
     return;
   }

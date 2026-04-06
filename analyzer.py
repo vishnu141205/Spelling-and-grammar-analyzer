@@ -29,6 +29,109 @@ SENTENCE_JOIN_REGEX = re.compile(
     r"\b((?:i am|i'm|my name is|this is|he is|she is)\b[^.\n,!?]*?)\s+(?=(?:i am|i'm|my name is|this is|he is|she is)\b)",
     re.IGNORECASE,
 )
+LEADING_GREETING_REGEX = re.compile(r"^(?:\s*(?:hi|hello|hey)\b[,\s]*)+", re.IGNORECASE)
+SUBJECT_BE_REGEX = re.compile(
+    r"\b(?:(?P<det>a|an|the|this|that|these|those|my|your|our|their|his|her|each|every|many|few|several)\s+)?(?P<head>[A-Za-z]+)\s+(?P<verb>is|are)\b",
+    re.IGNORECASE,
+)
+THERE_BE_REGEX = re.compile(r"\bthere\s+(?P<verb>is|are)\s+(?P<next>[A-Za-z]+)\b", re.IGNORECASE)
+A_NUMBER_OF_REGEX = re.compile(r"\ba number of\s+[A-Za-z]+\s+(?P<verb>is|are)\b", re.IGNORECASE)
+THE_NUMBER_OF_REGEX = re.compile(r"\bthe number of\s+[A-Za-z]+\s+(?P<verb>is|are)\b", re.IGNORECASE)
+COMMA_SPLICE_REGEX = re.compile(
+    r"\b(?P<left>(?:I|you|we|they|he|she|it|[A-Z][a-z]+|the\s+[a-z]+|my\s+[a-z]+|our\s+[a-z]+|their\s+[a-z]+)\b[^,!?\n]*\b(?:am|is|are|was|were|have|has|had|do|does|did|can|could|will|would|should|must|go|goes|went|make|makes|made|say|says|said|see|sees|saw|know|knows|knew|think|thinks|thought)\b[^,!?\n]*)\s*,\s*(?P<right>(?:I|you|we|they|he|she|it|[A-Z][a-z]+|the\s+[a-z]+|my\s+[a-z]+|our\s+[a-z]+|their\s+[a-z]+)\b[^.!?\n]*\b(?:am|is|are|was|were|have|has|had|do|does|did|can|could|will|would|should|must|go|goes|went|make|makes|made|say|says|said|see|sees|saw|know|knows|knew|think|thinks|thought)\b[^.!?\n]*)(?P<end>[.!?]|$)",
+    re.IGNORECASE,
+)
+MISSING_COMMA_BEFORE_COORDINATING_CONJ_REGEX = re.compile(
+    r"\b(?P<left>(?:I|you|we|they|he|she|it|[A-Z][a-z]+|the\s+[a-z]+|my\s+[a-z]+|our\s+[a-z]+|their\s+[a-z]+)\b[^,.!?\n]*\b(?:am|is|are|was|were|have|has|had|do|does|did|can|could|will|would|should|must|go|goes|went|make|makes|made|say|says|said|see|sees|saw|know|knows|knew|think|thinks|thought)\b[^,.!?\n]*)\s+(?P<conj>and|but|or|nor|for|so|yet)\s+(?P<right>(?:I|you|we|they|he|she|it|[A-Z][a-z]+|the\s+[a-z]+|my\s+[a-z]+|our\s+[a-z]+|their\s+[a-z]+)\b[^.!?\n]*\b(?:am|is|are|was|were|have|has|had|do|does|did|can|could|will|would|should|must|go|goes|went|make|makes|made|say|says|said|see|sees|saw|know|knows|knew|think|thinks|thought)\b[^.!?\n]*)(?P<end>[.!?]|$)",
+    re.IGNORECASE,
+)
+COMMA_BEFORE_THAN_REGEX = re.compile(r",\s+(than\b)", re.IGNORECASE)
+
+QUESTION_WORDS = {
+    "who",
+    "what",
+    "when",
+    "where",
+    "why",
+    "how",
+    "whose",
+    "which",
+}
+
+QUESTION_PHRASES = {"how many", "how much"}
+
+QUESTION_AUXILIARY_STARTERS = {
+    "am",
+    "is",
+    "are",
+    "was",
+    "were",
+    "do",
+    "does",
+    "did",
+    "can",
+    "could",
+    "will",
+    "would",
+    "should",
+    "have",
+    "has",
+    "had",
+}
+
+SINGULAR_INDEFINITE_PRONOUNS = {
+    "another",
+    "anybody",
+    "anyone",
+    "anything",
+    "each",
+    "either",
+    "everybody",
+    "everyone",
+    "everything",
+    "much",
+    "neither",
+    "nobody",
+    "nothing",
+    "one",
+    "somebody",
+    "someone",
+    "something",
+}
+
+PLURAL_INDEFINITE_PRONOUNS = {
+    "both",
+    "few",
+    "fewer",
+    "many",
+    "others",
+    "several",
+    "they",
+}
+
+SINGULAR_WORDS_ENDING_WITH_S = {
+    "news",
+    "series",
+    "species",
+    "mathematics",
+    "physics",
+    "economics",
+    "politics",
+}
+
+IRREGULAR_PLURAL_NOUNS = {
+    "people",
+    "children",
+    "men",
+    "women",
+    "teeth",
+    "feet",
+    "mice",
+    "geese",
+}
+
+SINGULAR_DETERMINERS = {"a", "an", "this", "that", "each", "every"}
+PLURAL_DETERMINERS = {"these", "those", "many", "few", "several"}
 
 NUMBER_WORDS = {
     "zero",
@@ -97,6 +200,22 @@ COMMON_ALWAYS_VALID = {
 PRONOUN_SUBJECTS = {"i", "you", "we", "they", "he", "she", "it"}
 
 CONTEXTUAL_SPELLING_RULES = {
+    "ar": {
+        "suggestion": "are",
+        "previous_words": {"how", "what", "when", "where", "why", "who", "hi", "hello", "hey"},
+        "rule": "Contextual spelling",
+        "message": "Did you mean 'are' instead of 'ar' in this question context?",
+    },
+    "ypu": {
+        "suggestion": "you",
+        "rule": "Contextual spelling",
+        "message": "Did you mean 'you' instead of 'ypu'?",
+    },
+    "yu": {
+        "suggestion": "you",
+        "rule": "Contextual spelling",
+        "message": "Did you mean 'you' instead of 'yu'?",
+    },
     "ia": {
         "suggestion": "is",
         "previous_words": {"there"},
@@ -323,6 +442,93 @@ def _detect_grammar_issues(text: str) -> list[dict[str, Any]]:
             }
         )
 
+    for match in SUBJECT_BE_REGEX.finditer(text):
+        subject_head = match.group("head")
+        if subject_head.lower() == "there":
+            continue
+        if subject_head.lower() in QUESTION_WORDS or subject_head.lower() in QUESTION_AUXILIARY_STARTERS:
+            continue
+
+        expected = _expected_be_for_subject(match.group("det"), subject_head)
+        actual = match.group("verb").lower()
+        if actual != expected:
+            issues.append(
+                {
+                    "rule": "Subject-verb agreement",
+                    "message": f"Use '{expected}' with subject '{subject_head}'.",
+                    "severity": "warning",
+                    "position": match.start("verb"),
+                }
+            )
+
+    for match in THERE_BE_REGEX.finditer(text):
+        expected = _expected_be_after_there(match.group("next"))
+        actual = match.group("verb").lower()
+        if actual != expected:
+            issues.append(
+                {
+                    "rule": "There is/are agreement",
+                    "message": f"Use 'there {expected}' with '{match.group('next')}'.",
+                    "severity": "warning",
+                    "position": match.start("verb"),
+                }
+            )
+
+    for match in A_NUMBER_OF_REGEX.finditer(text):
+        if match.group("verb").lower() != "are":
+            issues.append(
+                {
+                    "rule": "Number phrase agreement",
+                    "message": "Use 'are' with the phrase 'a number of ...'.",
+                    "severity": "info",
+                    "position": match.start("verb"),
+                }
+            )
+
+    for match in THE_NUMBER_OF_REGEX.finditer(text):
+        if match.group("verb").lower() != "is":
+            issues.append(
+                {
+                    "rule": "Number phrase agreement",
+                    "message": "Use 'is' with the phrase 'the number of ...'.",
+                    "severity": "info",
+                    "position": match.start("verb"),
+                }
+            )
+
+    for match in COMMA_SPLICE_REGEX.finditer(text):
+        right_lead = match.group("right").lstrip().lower()
+        if any(right_lead.startswith(f"{conj} ") for conj in ("and", "but", "or", "nor", "for", "so", "yet")):
+            continue
+        issues.append(
+            {
+                "rule": "Comma splice",
+                "message": "A comma alone cannot join two independent clauses. Use a conjunction, semicolon, or period.",
+                "severity": "warning",
+                "position": match.start("right"),
+            }
+        )
+
+    for match in MISSING_COMMA_BEFORE_COORDINATING_CONJ_REGEX.finditer(text):
+        issues.append(
+            {
+                "rule": "Comma with coordinating conjunction",
+                "message": f"Add a comma before '{match.group('conj').lower()}' when joining independent clauses.",
+                "severity": "info",
+                "position": match.start("conj"),
+            }
+        )
+
+    for match in COMMA_BEFORE_THAN_REGEX.finditer(text):
+        issues.append(
+            {
+                "rule": "Comma with than-comparison",
+                "message": "Do not use a comma before 'than' in comparisons.",
+                "severity": "info",
+                "position": match.start(),
+            }
+        )
+
     lines = text.splitlines()
     offset = 0
     for line in lines:
@@ -373,6 +579,82 @@ def _capitalize_likely_person_names(text: str) -> str:
     return NAME_INTRO_REGEX.sub(replacer, text)
 
 
+def _is_question_sentence(sentence_body: str) -> bool:
+    candidate = sentence_body.strip().lower()
+    if not candidate:
+        return False
+
+    candidate = LEADING_GREETING_REGEX.sub("", candidate).strip()
+    if not candidate:
+        return False
+
+    for phrase in QUESTION_PHRASES:
+        if candidate == phrase or candidate.startswith(f"{phrase} "):
+            return True
+
+    match = re.match(r"[a-z]+", candidate)
+    if not match:
+        return False
+
+    first_word = match.group(0)
+    if first_word in QUESTION_WORDS:
+        return True
+
+    return first_word in QUESTION_AUXILIARY_STARTERS
+
+
+def _is_likely_plural_noun(word: str) -> bool:
+    lower = word.lower()
+    if lower in IRREGULAR_PLURAL_NOUNS:
+        return True
+    if lower in SINGULAR_WORDS_ENDING_WITH_S:
+        return False
+    return len(lower) > 1 and lower.endswith("s")
+
+
+def _expected_be_for_subject(det: str | None, head: str) -> str:
+    lower_head = head.lower()
+    lower_det = det.lower() if det else None
+
+    if lower_head == "i":
+        return "am"
+
+    if lower_head in {"you", "we", "they", "these", "those"}:
+        return "are"
+
+    if lower_head in {"he", "she", "it", "this", "that"}:
+        return "is"
+
+    if lower_head in SINGULAR_INDEFINITE_PRONOUNS:
+        return "is"
+
+    if lower_head in PLURAL_INDEFINITE_PRONOUNS:
+        return "are"
+
+    if lower_det in SINGULAR_DETERMINERS:
+        return "is"
+
+    if lower_det in PLURAL_DETERMINERS:
+        return "are"
+
+    return "are" if _is_likely_plural_noun(lower_head) else "is"
+
+
+def _expected_be_after_there(next_word: str) -> str:
+    lower = next_word.lower()
+
+    if lower in {"a", "an", "one", "each", "every", "this", "that"}:
+        return "is"
+
+    if lower in {"many", "few", "several", "these", "those"}:
+        return "are"
+
+    if lower in NUMBER_WORDS - {"one"}:
+        return "are"
+
+    return "are" if _is_likely_plural_noun(lower) else "is"
+
+
 def _apply_grammar_corrections(text: str) -> str:
     corrected = text
 
@@ -385,6 +667,72 @@ def _apply_grammar_corrections(text: str) -> str:
     corrected = _capitalize_likely_person_names(corrected)
 
     corrected = SENTENCE_JOIN_REGEX.sub(r"\1, and ", corrected)
+
+    def fix_subject_be(match: re.Match[str]) -> str:
+        det = match.group("det")
+        head = match.group("head")
+        verb = match.group("verb")
+
+        if head.lower() == "there":
+            return match.group(0)
+        if head.lower() in QUESTION_WORDS or head.lower() in QUESTION_AUXILIARY_STARTERS:
+            return match.group(0)
+
+        expected = _expected_be_for_subject(det, head)
+        if verb.lower() == expected:
+            return match.group(0)
+
+        if verb.isupper():
+            expected = expected.upper()
+        elif verb.istitle():
+            expected = expected.title()
+
+        if det:
+            return f"{det} {head} {expected}"
+        return f"{head} {expected}"
+
+    corrected = SUBJECT_BE_REGEX.sub(fix_subject_be, corrected)
+
+    def fix_there_be(match: re.Match[str]) -> str:
+        verb = match.group("verb")
+        next_word = match.group("next")
+        expected = _expected_be_after_there(next_word)
+        if verb.lower() == expected:
+            return match.group(0)
+
+        if verb.isupper():
+            expected = expected.upper()
+        elif verb.istitle():
+            expected = expected.title()
+
+        return f"there {expected} {next_word}"
+
+    corrected = THERE_BE_REGEX.sub(fix_there_be, corrected)
+    corrected = A_NUMBER_OF_REGEX.sub(lambda m: m.group(0)[: m.start("verb") - m.start()] + "are", corrected)
+    corrected = THE_NUMBER_OF_REGEX.sub(lambda m: m.group(0)[: m.start("verb") - m.start()] + "is", corrected)
+
+    corrected = COMMA_BEFORE_THAN_REGEX.sub(r" \1", corrected)
+
+    def fix_coordinating_conjunction_comma(match: re.Match[str]) -> str:
+        left = match.group("left").rstrip()
+        conj = match.group("conj")
+        right = match.group("right").lstrip()
+        end = match.group("end")
+        return f"{left}, {conj} {right}{end}"
+
+    corrected = MISSING_COMMA_BEFORE_COORDINATING_CONJ_REGEX.sub(
+        fix_coordinating_conjunction_comma, corrected
+    )
+
+    def fix_comma_splice(match: re.Match[str]) -> str:
+        left = match.group("left").rstrip()
+        right = match.group("right").lstrip()
+        end = match.group("end")
+        if any(right.lower().startswith(f"{conj} ") for conj in ("and", "but", "or", "nor", "for", "so", "yet")):
+            return f"{left}, {right}{end}"
+        return f"{left}; {right}{end}"
+
+    corrected = COMMA_SPLICE_REGEX.sub(fix_comma_splice, corrected)
 
     # Align article usage with the first letter of the following word.
     def fix_article(match: re.Match[str]) -> str:
@@ -420,8 +768,18 @@ def _apply_grammar_corrections(text: str) -> str:
                 newline = "\n"
 
             trimmed = body.rstrip()
-            if trimmed and trimmed[-1] not in ".!?":
-                body = f"{trimmed}."
+            if trimmed:
+                terminal = trimmed[-1] if trimmed[-1] in ".!?" else ""
+                core = trimmed[:-1].rstrip() if terminal else trimmed
+                is_question = _is_question_sentence(core)
+
+                if terminal:
+                    if terminal != "!" and is_question:
+                        body = f"{core}?"
+                    else:
+                        body = trimmed
+                else:
+                    body = f"{core}{'?' if is_question else '.'}"
             else:
                 body = trimmed if trimmed else body
 
