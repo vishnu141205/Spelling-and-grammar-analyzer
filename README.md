@@ -59,6 +59,15 @@ python app.py
 
 Open: `http://127.0.0.1:5000`
 
+## Run Tests
+
+```bash
+python -m unittest discover -s tests -v
+```
+
+This runs spelling regressions, correction quality tests, and Flask API integration tests.
+It also includes dedicated basic grammar-rule tests (articles, capitalization, punctuation, repeated words, and subject-verb agreement).
+
 ## API Endpoints
 
 - `POST /api/analyze`

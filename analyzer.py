@@ -18,6 +18,9 @@ TOKEN_REGEX = re.compile(
     r"(?P<OTHER>.)"
 )
 
+WORD_MATCH_REGEX = re.compile(r"\b[A-Za-z]+(?:'[A-Za-z]+)?\b")
+STANDALONE_I_REGEX = re.compile(r"(?<![A-Za-z'])i(?![A-Za-z'])")
+
 REPEATED_WORD_REGEX = re.compile(r"\b([A-Za-z]+)\s+\1\b", re.IGNORECASE)
 ARTICLE_REGEX = re.compile(r"\b(a|an)\s+([A-Za-z]+)\b", re.IGNORECASE)
 SENTENCE_REGEX = re.compile(r"[^.!?]+[.!?]?", re.MULTILINE)
@@ -46,6 +49,72 @@ MISSING_COMMA_BEFORE_COORDINATING_CONJ_REGEX = re.compile(
     re.IGNORECASE,
 )
 COMMA_BEFORE_THAN_REGEX = re.compile(r",\s+(than\b)", re.IGNORECASE)
+THAN_THEN_COMPARISON_REGEX = re.compile(r"\b(?P<left>(?:more\s+)?[A-Za-z]+(?:er)?)\s+then\b", re.IGNORECASE)
+REDUNDANT_MORE_COMPARATIVE_REGEX = re.compile(r"\bmore\s+(?P<adj>[A-Za-z]+er)\b", re.IGNORECASE)
+SUBJECT_HAVE_REGEX = re.compile(
+    r"\b(?P<subject>I|you|we|they|he|she|it|[A-Za-z]+)\s+(?P<verb>have|has)\b",
+    re.IGNORECASE,
+)
+SUBJECT_WAS_WERE_REGEX = re.compile(
+    r"\b(?P<subject>I|you|we|they|he|she|it|[A-Za-z]+)\s+(?P<verb>was|were)\b",
+    re.IGNORECASE,
+)
+THIRD_PERSON_DONT_REGEX = re.compile(r"\b(?P<subject>he|she|it)\s+dont\b", re.IGNORECASE)
+THIRD_PERSON_DONT_CONTRACTION_REGEX = re.compile(r"\b(?P<subject>he|she|it)\s+don't\b", re.IGNORECASE)
+THERE_THEIR_POSSESSIVE_REGEX = re.compile(r"\bthere\s+(?P<noun>[a-z]+)\b", re.IGNORECASE)
+PRESENT_PERFECT_WENT_REGEX = re.compile(r"\b(?P<aux>has|have|had)\s+went\b", re.IGNORECASE)
+WHEN_PAST_PROGRESSIVE_BASE_REGEX = re.compile(
+    r"\b(?P<left>(?:I|you|we|they|he|she|it)\s+(?:was|were)\s+[A-Za-z]+ing\s+when\s+(?:I|you|we|they|he|she|it)\s+)(?P<verb>start)\b",
+    re.IGNORECASE,
+)
+NAME_AS_VERB_REGEX = re.compile(r"\b(?P<noun>[A-Za-z]+)\s+name\s+(?P<name>[A-Z][a-z]+)\b")
+STATIVE_PROGRESSIVE_REGEX = re.compile(
+    r"\b(?P<subject>I|you|we|they|he|she|it)\s+am\s+not\s+understanding\b",
+    re.IGNORECASE,
+)
+PRESENT_PERFECT_YESTERDAY_REGEX = re.compile(
+    r"\b(?P<subject>I|you|we|they|he|she|it)\s+(?:have|has|had)\s+gone(?P<tail>[^.!?\n]*\byesterday\b)",
+    re.IGNORECASE,
+)
+PLURAL_QUANTIFIER_NOUN_REGEX = re.compile(
+    r"\b(?P<qty>\d+|two|three|four|five|six|seven|eight|nine|ten|many|several|few)\s+(?P<noun>[A-Za-z]+)\b",
+    re.IGNORECASE,
+)
+THIRD_PERSON_SIMPLE_BASE_REGEX = re.compile(
+    r"\b(?P<subject>he|she|it|my\s+[a-z]+|the\s+[a-z]+|[A-Z][a-z]+)\s+(?P<verb>play|go|rise|start|eat|drink|read|write|walk|run|talk|look|need|want|make|take|say|know|like|work|study)\b",
+    re.IGNORECASE,
+)
+PROGRESSIVE_NOW_BE_REGEX = re.compile(
+    r"\b(?P<subject>I|you|we|they|he|she|it)\s+(?P<verb>was|were)\s+(?P<prog>[A-Za-z]+ing)(?P<tail>[^.!?\n]*\bnow\b)",
+    re.IGNORECASE,
+)
+DO_SUPPORT_BASE_FORM_REGEX = re.compile(
+    r"\b(?P<subject>I|you|we|they|he|she|it|[A-Z][a-z]+)\s+(?P<aux>do|does|did|don't|doesn't|didn't)\s+(?P<verb>[A-Za-z]+)\b",
+    re.IGNORECASE,
+)
+TO_BASE_FORM_REGEX = re.compile(r"\bto\s+(?P<verb>[A-Za-z]+)\b", re.IGNORECASE)
+
+POSSESSIVE_NOUN_HINTS = {
+    "house",
+    "home",
+    "school",
+    "teacher",
+    "dog",
+    "cat",
+    "friend",
+    "brother",
+    "sister",
+    "car",
+    "book",
+    "parents",
+    "mother",
+    "father",
+    "class",
+    "team",
+    "family",
+    "room",
+    "bag",
+}
 
 QUESTION_WORDS = {
     "who",
@@ -78,6 +147,33 @@ QUESTION_AUXILIARY_STARTERS = {
     "has",
     "had",
 }
+
+MONTH_NAMES = {
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "october",
+    "november",
+    "december",
+}
+
+DAY_NAMES = {
+    "monday",
+    "tuesday",
+    "wednesday",
+    "thursday",
+    "friday",
+    "saturday",
+    "sunday",
+}
+
+CAPITALIZED_TIME_WORDS = MONTH_NAMES | DAY_NAMES
 
 SINGULAR_INDEFINITE_PRONOUNS = {
     "another",
@@ -197,6 +293,27 @@ COMMON_ALWAYS_VALID = {
     "you're",
 }
 
+COMMON_MISSPELLINGS = {
+    "dont": "don't",
+    "cant": "can't",
+    "wont": "won't",
+    "shouldnt": "shouldn't",
+    "couldnt": "couldn't",
+    "wouldnt": "wouldn't",
+    "didnt": "didn't",
+    "doesnt": "doesn't",
+    "isnt": "isn't",
+    "arent": "aren't",
+    "wasnt": "wasn't",
+    "werent": "weren't",
+    "teh": "the",
+    "recieve": "receive",
+    "definately": "definitely",
+    "goverment": "government",
+    "writting": "writing",
+    "theer": "there",
+}
+
 PRONOUN_SUBJECTS = {"i", "you", "we", "they", "he", "she", "it"}
 
 CONTEXTUAL_SPELLING_RULES = {
@@ -236,6 +353,12 @@ CONTEXTUAL_SPELLING_RULES = {
         "rule": "Contextual spelling",
         "message": "Did you mean 'bought' instead of 'bout' in this context?",
     },
+    "bandanna": {
+        "suggestion": "banana",
+        "previous_words": {"eat", "eats", "ate", "eating"},
+        "rule": "Contextual spelling",
+        "message": "Did you mean 'banana' in this food context?",
+    },
     "raning": {
         "suggestion": "raining",
         "previous_words": {"am", "is", "are", "was", "were", "be", "been", "being"},
@@ -247,6 +370,23 @@ CONTEXTUAL_SPELLING_RULES = {
         "previous_words": {"am", "is", "are", "was", "were", "be", "been", "being"},
         "rule": "Contextual spelling",
         "message": "Did you mean 'tired' instead of 'tred' in this context?",
+    },
+    "goed": {
+        "suggestion": "went",
+        "previous_words": {"i", "you", "we", "they", "he", "she", "it"},
+        "next_words": {"to"},
+        "rule": "Contextual spelling",
+        "message": "Use 'went' as the past tense of 'go'.",
+    },
+    "everydays": {
+        "suggestion": "every day",
+        "rule": "Contextual spelling",
+        "message": "Use 'every day' for frequency, not 'everydays'.",
+    },
+    "beautifull": {
+        "suggestion": "beautiful",
+        "rule": "Contextual spelling",
+        "message": "Did you mean 'beautiful' instead of 'beautifull'?",
     },
     "he": {
         "suggestion": "her",
@@ -305,9 +445,18 @@ def _is_valid_word(word: str) -> bool:
     candidate = word.lower()
     if len(candidate) <= 2:
         return True
+    if candidate in COMMON_MISSPELLINGS:
+        return False
     if candidate in _lexicon():
-        return True
-    return zipf_frequency(candidate, "en") > 2.4
+        return not _is_suspect_misspelling(candidate)
+    if _zipf(candidate) <= 2.4:
+        return False
+    return not _is_suspect_misspelling(candidate)
+
+
+@lru_cache(maxsize=20000)
+def _zipf(word: str) -> float:
+    return zipf_frequency(word, "en")
 
 
 @lru_cache(maxsize=5000)
@@ -319,15 +468,44 @@ def _suggest_word(word: str) -> list[str]:
     bucket = _lexicon_buckets().get(lower_word[0], [])
     target_len = len(lower_word)
     narrowed = [w for w in bucket if abs(len(w) - target_len) <= 2]
-    suggestions = get_close_matches(lower_word, narrowed, n=8, cutoff=0.76)
+    suggestions = [s for s in get_close_matches(lower_word, narrowed, n=10, cutoff=0.76) if s != lower_word]
+
+    common_fix = COMMON_MISSPELLINGS.get(lower_word)
+    if common_fix:
+        suggestions.insert(0, common_fix)
     suggestions.sort(
         key=lambda candidate: (
-            -zipf_frequency(candidate, "en"),
             -SequenceMatcher(None, lower_word, candidate).ratio(),
-            len(candidate),
+            abs(len(candidate) - target_len),
+            -_zipf(candidate),
         )
     )
-    return suggestions[:3]
+    deduped: list[str] = []
+    for suggestion in suggestions:
+        if suggestion not in deduped:
+            deduped.append(suggestion)
+
+    if common_fix:
+        deduped = [common_fix] + [s for s in deduped if s != common_fix]
+
+    return deduped[:3]
+
+
+@lru_cache(maxsize=20000)
+def _is_suspect_misspelling(word: str) -> bool:
+    if word in COMMON_ALWAYS_VALID or len(word) <= 3:
+        return False
+
+    suggestions = _suggest_word(word)
+    if not suggestions:
+        return False
+
+    best = suggestions[0]
+    ratio = SequenceMatcher(None, word, best).ratio()
+    if ratio < 0.82:
+        return False
+
+    return (_zipf(best) - _zipf(word)) >= 1.2
 
 
 def _contextual_spelling_issue(
@@ -405,7 +583,7 @@ def _detect_grammar_issues(text: str) -> list[dict[str, Any]]:
                 }
             )
 
-    for match in re.finditer(r"(?<![A-Za-z'])i(?![A-Za-z'])", text):
+    for match in STANDALONE_I_REGEX.finditer(text):
         issues.append(
             {
                 "rule": "Pronoun capitalization",
@@ -415,13 +593,26 @@ def _detect_grammar_issues(text: str) -> list[dict[str, Any]]:
             }
         )
 
+    for match in re.finditer(r"\b([A-Za-z]+)\b", text):
+        word = match.group(1)
+        lower_word = word.lower()
+        if lower_word in CAPITALIZED_TIME_WORDS and not word[0].isupper():
+            issues.append(
+                {
+                    "rule": "Capital letters",
+                    "message": f"Capitalize '{word}' when referring to days or months.",
+                    "severity": "info",
+                    "position": match.start(),
+                }
+            )
+
     for match in NAME_INTRO_REGEX.finditer(text):
         name = match.group(2)
         if (
             name
             and name[0].islower()
             and name.lower() not in NUMBER_WORDS
-            and zipf_frequency(name.lower(), "en") < NAME_LIKE_MAX_ZIPF
+            and _zipf(name.lower()) < NAME_LIKE_MAX_ZIPF
         ):
             issues.append(
                 {
@@ -460,6 +651,203 @@ def _detect_grammar_issues(text: str) -> list[dict[str, Any]]:
                     "position": match.start("verb"),
                 }
             )
+
+    for match in SUBJECT_HAVE_REGEX.finditer(text):
+        subject = match.group("subject")
+        actual = match.group("verb").lower()
+        lower_subject = subject.lower()
+
+        if lower_subject in {"i", "you", "we", "they"}:
+            expected = "have"
+        elif lower_subject in {"he", "she", "it"}:
+            expected = "has"
+        else:
+            expected = "have" if _is_likely_plural_noun(lower_subject) else "has"
+
+        if actual != expected:
+            issues.append(
+                {
+                    "rule": "Subject-verb agreement",
+                    "message": f"Use '{expected}' with subject '{subject}'.",
+                    "severity": "warning",
+                    "position": match.start("verb"),
+                }
+            )
+
+    for match in SUBJECT_WAS_WERE_REGEX.finditer(text):
+        subject = match.group("subject")
+        actual = match.group("verb").lower()
+        lower_subject = subject.lower()
+
+        if lower_subject in {"you", "we", "they"}:
+            expected = "were"
+        elif lower_subject in {"i", "he", "she", "it"}:
+            expected = "was"
+        else:
+            expected = "were" if _is_likely_plural_noun(lower_subject) else "was"
+
+        if actual != expected:
+            issues.append(
+                {
+                    "rule": "Subject-verb agreement",
+                    "message": f"Use '{expected}' with subject '{subject}'.",
+                    "severity": "warning",
+                    "position": match.start("verb"),
+                }
+            )
+
+    for match in THIRD_PERSON_DONT_REGEX.finditer(text):
+        issues.append(
+            {
+                "rule": "Subject-verb agreement",
+                "message": "Use 'doesn't' with he/she/it in simple present.",
+                "severity": "warning",
+                "position": match.start(),
+            }
+        )
+
+    for match in THIRD_PERSON_DONT_CONTRACTION_REGEX.finditer(text):
+        issues.append(
+            {
+                "rule": "Subject-verb agreement",
+                "message": "Use 'doesn't' with he/she/it in simple present.",
+                "severity": "warning",
+                "position": match.start(),
+            }
+        )
+
+    for match in PRESENT_PERFECT_WENT_REGEX.finditer(text):
+        issues.append(
+            {
+                "rule": "Verb tense",
+                "message": "Use 'gone' after has/have/had in the present perfect.",
+                "severity": "warning",
+                "position": match.start(),
+            }
+        )
+
+    for match in THAN_THEN_COMPARISON_REGEX.finditer(text):
+        left = match.group("left")
+        if left.lower().endswith("er") or left.lower().startswith("more "):
+            issues.append(
+                {
+                    "rule": "Comparison word choice",
+                    "message": "Use 'than' (not 'then') for comparisons.",
+                    "severity": "info",
+                    "position": match.start(),
+                }
+            )
+
+    for match in REDUNDANT_MORE_COMPARATIVE_REGEX.finditer(text):
+        issues.append(
+            {
+                "rule": "Comparative form",
+                "message": f"Use either 'more {match.group('adj')[:-2]}' or '{match.group('adj')}', not both.",
+                "severity": "info",
+                "position": match.start(),
+            }
+        )
+
+    for match in THERE_THEIR_POSSESSIVE_REGEX.finditer(text):
+        noun = match.group("noun").lower()
+        if noun in POSSESSIVE_NOUN_HINTS:
+            issues.append(
+                {
+                    "rule": "Homophone choice",
+                    "message": "Use 'their' for possession, not 'there'.",
+                    "severity": "warning",
+                    "position": match.start(),
+                }
+            )
+
+    for match in NAME_AS_VERB_REGEX.finditer(text):
+        issues.append(
+            {
+                "rule": "Word form",
+                "message": "Use 'named' when introducing a name (e.g., 'a dog named Bruno').",
+                "severity": "info",
+                "position": match.start(),
+            }
+        )
+
+    for match in STATIVE_PROGRESSIVE_REGEX.finditer(text):
+        issues.append(
+            {
+                "rule": "Verb form",
+                "message": "Use 'do not understand' instead of 'am not understanding' in standard usage.",
+                "severity": "info",
+                "position": match.start(),
+            }
+        )
+
+    for match in PLURAL_QUANTIFIER_NOUN_REGEX.finditer(text):
+        noun = match.group("noun")
+        if not _is_likely_plural_noun(noun):
+            issues.append(
+                {
+                    "rule": "Noun number agreement",
+                    "message": f"Use a plural noun after '{match.group('qty')}' (e.g., '{_pluralize_noun(noun)}').",
+                    "severity": "info",
+                    "position": match.start("noun"),
+                }
+            )
+
+    for match in THIRD_PERSON_SIMPLE_BASE_REGEX.finditer(text):
+        subject = match.group("subject")
+        verb = match.group("verb")
+        if subject.lower() in {"he", "she", "it"} or subject.lower().startswith(("my ", "the ")) or subject[0].isupper():
+            issues.append(
+                {
+                    "rule": "Subject-verb agreement",
+                    "message": f"Use '{_third_person_singular(verb)}' with singular subject '{subject}'.",
+                    "severity": "warning",
+                    "position": match.start("verb"),
+                }
+            )
+
+    for match in PROGRESSIVE_NOW_BE_REGEX.finditer(text):
+        issues.append(
+            {
+                "rule": "Tense consistency",
+                "message": "Use present progressive with 'now' (am/is/are + verb-ing).",
+                "severity": "info",
+                "position": match.start("verb"),
+            }
+        )
+
+    for match in DO_SUPPORT_BASE_FORM_REGEX.finditer(text):
+        verb = match.group("verb")
+        if _looks_like_third_person_singular_form(verb):
+            issues.append(
+                {
+                    "rule": "Verb form",
+                    "message": f"Use base verb '{_to_base_verb(verb)}' after auxiliary '{match.group('aux')}'.",
+                    "severity": "warning",
+                    "position": match.start("verb"),
+                }
+            )
+
+    for match in TO_BASE_FORM_REGEX.finditer(text):
+        verb = match.group("verb")
+        if _looks_like_third_person_singular_form(verb):
+            issues.append(
+                {
+                    "rule": "Verb form",
+                    "message": f"Use base verb '{_to_base_verb(verb)}' after 'to'.",
+                    "severity": "info",
+                    "position": match.start("verb"),
+                }
+            )
+
+    for match in WHEN_PAST_PROGRESSIVE_BASE_REGEX.finditer(text):
+        issues.append(
+            {
+                "rule": "Tense consistency",
+                "message": "Use past tense in the 'when' clause after a past progressive clause.",
+                "severity": "info",
+                "position": match.start("verb"),
+            }
+        )
 
     for match in THERE_BE_REGEX.finditer(text):
         expected = _expected_be_after_there(match.group("next"))
@@ -544,18 +932,6 @@ def _detect_grammar_issues(text: str) -> list[dict[str, Any]]:
             )
         offset += len(line) + 1
 
-    if text and not lines:
-        stripped = text.strip()
-        if stripped and stripped[-1] not in ".!?":
-            issues.append(
-                {
-                    "rule": "Sentence punctuation",
-                    "message": "Sentence should end with terminal punctuation (. ! ?).",
-                    "severity": "info",
-                    "position": max(0, len(text) - 1),
-                }
-            )
-
     return issues
 
 
@@ -572,7 +948,7 @@ def _capitalize_likely_person_names(text: str) -> str:
     def replacer(match: re.Match[str]) -> str:
         prefix = match.group(1)
         name = match.group(2)
-        if name.lower() in NUMBER_WORDS or zipf_frequency(name.lower(), "en") >= NAME_LIKE_MAX_ZIPF:
+        if name.lower() in NUMBER_WORDS or _zipf(name.lower()) >= NAME_LIKE_MAX_ZIPF:
             return match.group(0)
         return f"{prefix} {name[0].upper()}{name[1:]}"
 
@@ -610,6 +986,82 @@ def _is_likely_plural_noun(word: str) -> bool:
     if lower in SINGULAR_WORDS_ENDING_WITH_S:
         return False
     return len(lower) > 1 and lower.endswith("s")
+
+
+def _pluralize_noun(noun: str) -> str:
+    lower = noun.lower()
+    if lower.endswith("y") and len(lower) > 1 and lower[-2] not in "aeiou":
+        return f"{noun[:-1]}ies"
+    if lower.endswith(("s", "x", "z", "ch", "sh")):
+        return f"{noun}es"
+    return f"{noun}s"
+
+
+def _third_person_singular(verb: str) -> str:
+    lower = verb.lower()
+    irregular = {"have": "has", "do": "does", "go": "goes"}
+    if lower in irregular:
+        out = irregular[lower]
+    elif lower.endswith("y") and len(lower) > 1 and lower[-2] not in "aeiou":
+        out = f"{lower[:-1]}ies"
+    elif lower.endswith(("s", "x", "z", "ch", "sh", "o")):
+        out = f"{lower}es"
+    else:
+        out = f"{lower}s"
+
+    if verb.isupper():
+        return out.upper()
+    if verb.istitle():
+        return out.title()
+    return out
+
+
+def _present_be_for_subject(subject: str) -> str:
+    lower = subject.lower()
+    if lower == "i":
+        return "am"
+    if lower in {"you", "we", "they"}:
+        return "are"
+    return "is"
+
+
+def _to_base_verb(verb: str) -> str:
+    lower = verb.lower()
+    irregular = {
+        "does": "do",
+        "has": "have",
+        "is": "be",
+        "are": "be",
+        "was": "be",
+        "were": "be",
+    }
+    if lower in irregular:
+        base = irregular[lower]
+    elif lower.endswith("ies") and len(lower) > 3:
+        base = f"{lower[:-3]}y"
+    elif lower.endswith("es") and len(lower) > 2 and lower[:-2].endswith(("s", "x", "z", "ch", "sh", "o")):
+        base = lower[:-2]
+    elif lower.endswith("s") and len(lower) > 1:
+        base = lower[:-1]
+    else:
+        base = lower
+
+    if verb.isupper():
+        return base.upper()
+    if verb.istitle():
+        return base.title()
+    return base
+
+
+def _looks_like_third_person_singular_form(verb: str) -> bool:
+    lower = verb.lower()
+    if lower in {"is", "has", "does"}:
+        return True
+    if lower.endswith("ies") and len(lower) > 3:
+        return True
+    if lower.endswith("es") and len(lower) > 2 and lower[:-2].endswith(("s", "x", "z", "ch", "sh", "o")):
+        return True
+    return lower.endswith("s") and len(lower) > 1
 
 
 def _expected_be_for_subject(det: str | None, head: str) -> str:
@@ -655,6 +1107,28 @@ def _expected_be_after_there(next_word: str) -> str:
     return "are" if _is_likely_plural_noun(lower) else "is"
 
 
+def _expected_have_for_subject(subject: str) -> str:
+    lower_subject = subject.lower()
+    if lower_subject in {"i", "you", "we", "they"}:
+        return "have"
+    if lower_subject in {"he", "she", "it"}:
+        return "has"
+    return "have" if _is_likely_plural_noun(lower_subject) else "has"
+
+
+def _expected_was_were_for_subject(subject: str) -> str:
+    lower_subject = subject.lower()
+    if lower_subject in {"you", "we", "they"}:
+        return "were"
+    if lower_subject in {"i", "he", "she", "it"}:
+        return "was"
+    return "were" if _is_likely_plural_noun(lower_subject) else "was"
+
+
+def _do_support_for_subject(subject: str) -> str:
+    return "does" if subject.lower() in {"he", "she", "it"} else "do"
+
+
 def _apply_grammar_corrections(text: str) -> str:
     corrected = text
 
@@ -662,7 +1136,14 @@ def _apply_grammar_corrections(text: str) -> str:
     corrected = re.sub(r"\b([A-Za-z]+)(\s+)\1\b", r"\1", corrected, flags=re.IGNORECASE)
 
     # Normalize the standalone pronoun "i" to uppercase.
-    corrected = re.sub(r"(?<![A-Za-z'])i(?![A-Za-z'])", "I", corrected)
+    corrected = STANDALONE_I_REGEX.sub("I", corrected)
+
+    corrected = re.sub(
+        r"\b(" + "|".join(sorted(CAPITALIZED_TIME_WORDS, key=len, reverse=True)) + r")\b",
+        lambda m: m.group(1).capitalize(),
+        corrected,
+        flags=re.IGNORECASE,
+    )
 
     corrected = _capitalize_likely_person_names(corrected)
 
@@ -693,6 +1174,34 @@ def _apply_grammar_corrections(text: str) -> str:
 
     corrected = SUBJECT_BE_REGEX.sub(fix_subject_be, corrected)
 
+    def fix_subject_have(match: re.Match[str]) -> str:
+        subject = match.group("subject")
+        verb = match.group("verb")
+        expected = _expected_have_for_subject(subject)
+        if verb.lower() == expected:
+            return match.group(0)
+        if verb.isupper():
+            expected = expected.upper()
+        elif verb.istitle():
+            expected = expected.title()
+        return f"{subject} {expected}"
+
+    corrected = SUBJECT_HAVE_REGEX.sub(fix_subject_have, corrected)
+
+    def fix_subject_was_were(match: re.Match[str]) -> str:
+        subject = match.group("subject")
+        verb = match.group("verb")
+        expected = _expected_was_were_for_subject(subject)
+        if verb.lower() == expected:
+            return match.group(0)
+        if verb.isupper():
+            expected = expected.upper()
+        elif verb.istitle():
+            expected = expected.title()
+        return f"{subject} {expected}"
+
+    corrected = SUBJECT_WAS_WERE_REGEX.sub(fix_subject_was_were, corrected)
+
     def fix_there_be(match: re.Match[str]) -> str:
         verb = match.group("verb")
         next_word = match.group("next")
@@ -708,6 +1217,54 @@ def _apply_grammar_corrections(text: str) -> str:
         return f"there {expected} {next_word}"
 
     corrected = THERE_BE_REGEX.sub(fix_there_be, corrected)
+    corrected = THIRD_PERSON_DONT_REGEX.sub(lambda m: f"{m.group('subject')} doesn't", corrected)
+    corrected = THIRD_PERSON_DONT_CONTRACTION_REGEX.sub(lambda m: f"{m.group('subject')} doesn't", corrected)
+    corrected = PRESENT_PERFECT_WENT_REGEX.sub(lambda m: f"{m.group('aux')} gone", corrected)
+    corrected = THAN_THEN_COMPARISON_REGEX.sub(
+        lambda m: f"{m.group('left')} than" if (m.group('left').lower().endswith('er') or m.group('left').lower().startswith('more ')) else m.group(0),
+        corrected,
+    )
+    corrected = REDUNDANT_MORE_COMPARATIVE_REGEX.sub(lambda m: m.group("adj"), corrected)
+    corrected = THERE_THEIR_POSSESSIVE_REGEX.sub(
+        lambda m: f"their {m.group('noun')}" if m.group("noun").lower() in POSSESSIVE_NOUN_HINTS else m.group(0),
+        corrected,
+    )
+    corrected = NAME_AS_VERB_REGEX.sub(lambda m: f"{m.group('noun')} named {m.group('name')}", corrected)
+    corrected = STATIVE_PROGRESSIVE_REGEX.sub(
+        lambda m: f"{m.group('subject')} {_do_support_for_subject(m.group('subject'))} not understand",
+        corrected,
+    )
+    corrected = PRESENT_PERFECT_YESTERDAY_REGEX.sub(
+        lambda m: f"{m.group('subject')} went{m.group('tail')}",
+        corrected,
+    )
+    corrected = PROGRESSIVE_NOW_BE_REGEX.sub(
+        lambda m: f"{m.group('subject')} {_present_be_for_subject(m.group('subject'))} {m.group('prog')}{m.group('tail')}",
+        corrected,
+    )
+    corrected = PLURAL_QUANTIFIER_NOUN_REGEX.sub(
+        lambda m: f"{m.group('qty')} {_pluralize_noun(m.group('noun'))}"
+        if not _is_likely_plural_noun(m.group("noun"))
+        else m.group(0),
+        corrected,
+    )
+    corrected = THIRD_PERSON_SIMPLE_BASE_REGEX.sub(
+        lambda m: f"{m.group('subject')} {_third_person_singular(m.group('verb'))}",
+        corrected,
+    )
+    corrected = DO_SUPPORT_BASE_FORM_REGEX.sub(
+        lambda m: f"{m.group('subject')} {m.group('aux')} {_to_base_verb(m.group('verb'))}"
+        if _looks_like_third_person_singular_form(m.group("verb"))
+        else m.group(0),
+        corrected,
+    )
+    corrected = TO_BASE_FORM_REGEX.sub(
+        lambda m: f"to {_to_base_verb(m.group('verb'))}"
+        if _looks_like_third_person_singular_form(m.group("verb"))
+        else m.group(0),
+        corrected,
+    )
+    corrected = WHEN_PAST_PROGRESSIVE_BASE_REGEX.sub(lambda m: f"{m.group('left')}started", corrected)
     corrected = A_NUMBER_OF_REGEX.sub(lambda m: m.group(0)[: m.start("verb") - m.start()] + "are", corrected)
     corrected = THE_NUMBER_OF_REGEX.sub(lambda m: m.group(0)[: m.start("verb") - m.start()] + "is", corrected)
 
@@ -808,7 +1365,7 @@ def _apply_basic_corrections(text: str, replacements: dict[str, str]) -> str:
             return replacement.upper()
         return replacement
 
-    corrected = re.sub(r"\b[A-Za-z]+(?:'[A-Za-z]+)?\b", replacer, corrected)
+    corrected = WORD_MATCH_REGEX.sub(replacer, corrected)
     return _apply_grammar_corrections(corrected)
 
 
@@ -818,6 +1375,8 @@ def analyze_text(text: str) -> dict[str, Any]:
 
     misspelled_instances: list[dict[str, Any]] = []
     frequency_counter: Counter[str] = Counter()
+    validity_cache: dict[str, bool] = {}
+    suggestion_cache: dict[str, list[str]] = {}
 
     previous_word: str | None = None
 
@@ -839,7 +1398,13 @@ def analyze_text(text: str) -> dict[str, Any]:
             previous_word = token.lexeme
             continue
 
-        if _is_valid_word(token.lexeme):
+        lower_lexeme = token.lexeme.lower()
+        is_valid = validity_cache.get(lower_lexeme)
+        if is_valid is None:
+            is_valid = _is_valid_word(token.lexeme)
+            validity_cache[lower_lexeme] = is_valid
+
+        if is_valid:
             previous_word = token.lexeme
             continue
 
@@ -849,7 +1414,7 @@ def analyze_text(text: str) -> dict[str, Any]:
                 "word": token.lexeme,
                 "line": token.line,
                 "column": token.column,
-                "suggestions": _suggest_word(token.lexeme),
+                "suggestions": suggestion_cache.setdefault(lower_lexeme, _suggest_word(token.lexeme)),
                 "rule": "Spelling",
             }
         )
